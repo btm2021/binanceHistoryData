@@ -30,13 +30,23 @@ function getAllSymbol() {
     allList.map(link => {
         listLink.push(getListLink(link))
     })
+    let configFile = []
     Promise.all(listLink).then(async data => {
         data = data.flat();
         for (let i = 0; i < data.length; i++) {
-            console.log(`*${i+1}/${data.length}.Begin download ${data[i].name} `)
-            let result = await beginDownload(data[i].link, data[i].name, timeframe, data[i].type)
+            console.log(`*${i + 1}/${data.length}.Begin download ${data[i].name} `)
+            //  let result = await beginDownload(data[i].link, data[i].name, timeframe, data[i].type)
+            //make configFile
+            let linkGithub =`https://raw.githubusercontent.com/btm2021/binanceHistoryData/main/${(data[i].type=='spot')?'spot':'future'}/${timeframe}_${data[i].name}.json`
+            configFile.push({
+                name: data[i].name,
+                timeframe,
+                type: data[i].type,
+                link:linkGithub
+            })
         }
-
+        fs.writeFileSync('config.json', JSON.stringify(configFile), {})
+        console.log('writeDone')
     })
 }
 async function getListLink(link) {
